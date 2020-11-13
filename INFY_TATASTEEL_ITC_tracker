@@ -1,0 +1,39 @@
+import pandas as pd
+import numpy as np
+import pickle
+import seaborn as sns
+import datetime 
+import time
+from IPython.display import clear_output
+from ipywidgets import Output
+output = Output()
+
+#!pip install nsetools
+
+from nsetools import Nse
+nse = Nse()
+
+def periodic_work(interval):
+    while True:
+        A = nse.get_quote('INFY')# it's ok to use both upper or lower case for codes.
+        B = nse.get_quote('TATASTEEL')
+        C = nse.get_quote('ITC')
+        #pprint(q) from pprint import pprint# just for neatness of display
+        x = round((A['lastPrice']-A['previousClose'])/A['previousClose'],4)
+        y = round((B['lastPrice']-B['previousClose'])/B['previousClose'],4)
+        z = round((C['lastPrice']-C['previousClose'])/C['previousClose'],4)
+
+        portfolio_val = (1 + .4*x + .3*(y+z))*100000
+        profit = portfolio_val-100000
+        time_curr = datetime.datetime.now().strftime("%H:%M:%S")
+        
+        print('% change in stock of {}'.format(A['companyName']), x)
+        print('% change in stock of {}'.format(B['companyName']), y)
+        print('% change in stock of {}'.format(C['companyName']), z)
+        print('Rs.',round(profit, 2), ' gain at time', time_curr)
+        time.sleep(interval)
+
+
+with output:
+    clear_output()
+periodic_work(5)
